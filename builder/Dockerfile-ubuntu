@@ -1,0 +1,45 @@
+FROM ubuntu:latest
+
+MAINTAINER A4E
+
+ENV DOCKER_BUCKET get.docker.com
+ENV DOCKER_VERSION 1.13.1
+ENV DOCKER_SHA256 97892375e756fd29a304bd8cd9ffb256c2e7c8fd759e12a55a6336e15100ad75
+
+ARG EXT_APP_PATH={{ common_paths.external_apps_rel }}
+
+ARG DOCKER_FILE_NAME={{ soft_versions.DOCKER.FILE_NAMES[0] }}
+ARG DOCKER_VERSION={{ soft_versions.DOCKER.VERSION }}
+
+ARG JAVA_FILE_NAME={{ soft_versions.SERVER_JRE.FILE_NAMES[0] }}
+ARG JAVA_VER_MINOR={{ soft_versions.SERVER_JRE.MINOR }}
+
+ARG MAVEN_VER={{ soft_versions.MAVEN.VERSION }}
+ARG MAVEN_FILE_NAME={{ soft_versions.MAVEN.FILE_NAMES[0] }}
+
+ARG DOCPAD_VER={{ soft_versions.DOCPAD }}
+
+COPY ${EXT_APP_PATH}/${JAVA_FILE_NAME} /tmp/java.tar.gz
+COPY ${EXT_APP_PATH}/${MAVEN_FILE_NAME} /tmp/maven.tar.gz
+COPY ${EXT_APP_PATH}/${DOCKER_FILE_NAME} /tmp/docker.tar.gz
+COPY {% for app_file_name in soft_versions.GLIBC_ALPINE.FILE_NAMES %}{{ "${EXT_APP_PATH}/" + app_file_name + " " }}{% endfor %} /tmp/
+
+ARG USER=a4everyone
+ARG DOCKER_GROUP1=999
+ARG DOCKER_GROUP2=1499
+
+ARG A4E_PROJ_ROOT=/a4e
+
+
+RUN \
+     apt install -y ca-certificates curl openssl \
+  && curl -fSL "https://${DOCKER_BUCKET}/builds/Linux/x86_64/docker-${DOCKER_VERSION}.tgz" -o docker.tgz \
+  && tar -xzvf docker.tgz \
+  && mv docker/* /usr/local/bin/ \
+  && rmdir docker \
+  && rm docker.tgz
+
+COPY docker-entrypoint.sh /usr/local/bin/
+
+ENTRYPOINT ["docker-entrypoint.sh"]
+CMD ["sh"]

@@ -1,0 +1,65 @@
+
+include       /etc/nginx/mime.types;
+include       /etc/nginx/koi-win;
+include       /etc/nginx/koi-utf;
+include       /etc/nginx/win-utf;
+
+server {
+    listen 8001;
+    server_name ${NG_WEBHOSTNAME};
+    return 301 https://${NG_WEBHOSTNAME}$request_uri;
+}
+
+server {
+    listen 4443 ssl;
+    server_name ${NG_WEBHOSTNAME};
+
+    ssl_certificate     /run/secrets/a4e_cert_chain;
+    ssl_certificate_key /run/secrets/a4e_cert_key;
+    ssl_session_cache shared:SSL:1m;
+    ssl_prefer_server_ciphers   on;
+
+    server_name_in_redirect on;
+    port_in_redirect        off;
+
+    if ($http_x_forwarded_proto = '') {
+        set $http_x_forwarded_proto  $scheme;
+    }
+    ## Application specific logs
+    ## access_log /var/log/nginx/artifactory.jfrog.com-access.log timing;
+    ## error_log /var/log/nginx/artifactory.jfrog.com-error.log;
+
+    #~ rewrite ^/$ /artifactory/webapp/ redirect;
+    #~ rewrite ^/artifactory/?(/webapp)?$ /artifactory/webapp/ redirect;
+
+    chunked_transfer_encoding on;
+    client_max_body_size 0;
+
+    location ^~ /artifactory {
+        proxy_read_timeout  900;
+        proxy_pass_header   Server;
+        proxy_cookie_path   ~*^/.* /;
+
+        proxy_pass          http://artifactory:8081/artifactory;
+        proxy_set_header    X-Artifactory-Override-Base-Url $http_x_forwarded_proto://$host/artifactory;
+        proxy_set_header    X-Forwarded-Port  $server_port;
+        proxy_set_header    X-Forwarded-Proto $http_x_forwarded_proto;
+        proxy_set_header    Host              $http_host;
+        proxy_set_header    X-Forwarded-For   $proxy_add_x_forwarded_for;
+    }
+
+    #~ location / {
+        #~ proxy_read_timeout  900;
+        #~ proxy_pass_header   Server;
+        #~ proxy_cookie_path   ~*^/.* /;
+        #~ if ( $request_uri ~ ^/artifactory(/*)(.*)$ ) {
+            #~ proxy_pass          http://artifactory:8081/artifactory/$2;
+        #~ }
+        #~ proxy_pass          http://artifactory:8081/artifactory/;
+        #~ proxy_set_header    X-Artifactory-Override-Base-Url $http_x_forwarded_proto://$host/artifactory;
+        #~ proxy_set_header    X-Forwarded-Port  $server_port;
+        #~ proxy_set_header    X-Forwarded-Proto $http_x_forwarded_proto;
+        #~ proxy_set_header    Host              $http_host;
+        #~ proxy_set_header    X-Forwarded-For   $proxy_add_x_forwarded_for;
+    #~ }
+}
