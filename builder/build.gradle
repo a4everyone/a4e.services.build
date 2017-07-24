@@ -1,0 +1,43 @@
+ext.verPrefix = "builder"
+apply from: "${System.env.A4E_GRADLE_COMMON}/a4e-service-config.gradle"
+
+project(':image.base') {
+    ext.baseImageApps = [
+      'SERVER_JRE': 'v_8.131',
+      'GLIBC_ALPINE': 'v_2.25-r0',
+      'GLIBC_ALPINE_BIN': 'v_2.25-r0',
+      'GLIBC_ALPINE_I18N': 'v_2.25-r0'
+    ]
+
+    apply from: "${System.env.A4E_GRADLE_COMMON}/image-base-build.gradle"
+
+    tasks.buildBaseDockerImg {
+        buildArgs = ["A4E_USER": "${rootProject.A4E_USER}",
+                     "A4E_USER_HOME": "${rootProject.A4E_USER_HOME}",
+                     "DOCKER_GROUP1": "${System.env.DOCKER_GROUP1}",
+                     "DOCKER_GROUP2": "${System.env.DOCKER_GROUP2}"]
+    }
+}
+
+// release {
+// 	 // Cheeky little trick to alter Andrew's release plugin to maintain many streams of versioning
+//     if (project.hasProperty('verPrefix')) {
+//         tagStrategy {
+//         		toTagString = { versionString -> "${verPrefix}_v${versionString}" }
+//         		parseTag = { Tag tag ->
+//                 try {
+//         						if (tag.name.startsWith("${verPrefix}_v")) {
+//                     	Version.valueOf(tag.name["${verPrefix}_v".length()..-1])
+//         						} else null
+//                 } catch (ParseException e) {
+//                     null
+//                 }
+//             }
+//         }
+//     }
+// }
+
+
+// apply from: "${System.env.A4E_GRADLE_COMMON}/image-build.gradle"
+
+// tasks.build.dependsOn ':webapp.main:war', ':image.base:build'
