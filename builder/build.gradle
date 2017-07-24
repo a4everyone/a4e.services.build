@@ -19,25 +19,6 @@ project(':image.base') {
     }
 }
 
-// release {
-// 	 // Cheeky little trick to alter Andrew's release plugin to maintain many streams of versioning
-//     if (project.hasProperty('verPrefix')) {
-//         tagStrategy {
-//         		toTagString = { versionString -> "${verPrefix}_v${versionString}" }
-//         		parseTag = { Tag tag ->
-//                 try {
-//         						if (tag.name.startsWith("${verPrefix}_v")) {
-//                     	Version.valueOf(tag.name["${verPrefix}_v".length()..-1])
-//         						} else null
-//                 } catch (ParseException e) {
-//                     null
-//                 }
-//             }
-//         }
-//     }
-// }
-
-
 apply from: "${System.env.A4E_GRADLE_COMMON}/image-build.gradle"
 
 tasks.build.dependsOn ':image.base:build'
