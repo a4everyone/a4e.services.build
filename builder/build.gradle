@@ -38,6 +38,6 @@ project(':image.base') {
 // }
 
 
-// apply from: "${System.env.A4E_GRADLE_COMMON}/image-build.gradle"
+apply from: "${System.env.A4E_GRADLE_COMMON}/image-build.gradle"
 
-// tasks.build.dependsOn ':webapp.main:war', ':image.base:build'
+tasks.build.dependsOn ':image.base:build'
