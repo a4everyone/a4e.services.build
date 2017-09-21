@@ -1,1 +1,1 @@
-FROM a4everyone/builder:base-${project.version}
+FROM a4everyone/builder:base-${project.version}${project.serviceBranchTag}

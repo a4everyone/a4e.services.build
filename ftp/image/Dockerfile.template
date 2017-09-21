@@ -1,0 +1,9 @@
+FROM a4everyone/ftp:base-${project.version}${project.serviceBranchTag}
+
+ENV SFTP_PORT=22
+<% project.buildinfo.each { key, value -> %>
+ENV BUILDINFO_${key}="${value}" <% } %>
+
+COPY startup.sh /startup.sh
+
+ENTRYPOINT ["/startup.sh"]

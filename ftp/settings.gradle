@@ -1,0 +1,2 @@
+rootProject.name = 'a4e.service.ftp'
+include 'image.base'
