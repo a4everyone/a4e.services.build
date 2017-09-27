@@ -6,7 +6,8 @@ project(':image.base') {
       'SERVER_JRE': 'v_8.131',
       'GLIBC_ALPINE': 'v_2.25-r0',
       'GLIBC_ALPINE_BIN': 'v_2.25-r0',
-      'GLIBC_ALPINE_I18N': 'v_2.25-r0'
+      'GLIBC_ALPINE_I18N': 'v_2.25-r0',
+      'MONGODB': 'v_3.4.9'
     ]
 
     apply from: "${System.env.A4E_GRADLE_COMMON}/image-base-build.gradle"

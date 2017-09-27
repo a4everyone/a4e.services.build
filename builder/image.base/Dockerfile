@@ -6,7 +6,11 @@ ARG A4E_USER_HOME=/home/${A4E_USER}
 ARG DOCKER_GROUP1
 ARG DOCKER_GROUP2
 
-COPY SERVER_JRE GLIBC_ALPINE GLIBC_ALPINE_BIN GLIBC_ALPINE_I18N /home/temp/ext/
+COPY SERVER_JRE GLIBC_ALPINE GLIBC_ALPINE_BIN GLIBC_ALPINE_I18N MONGODB /home/temp/ext/
+
+ENV JAVA_HOME=/opt/jdk
+ENV MONGODB_HOME=/opt/mongodb
+ENV PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:${JAVA_HOME}/bin:${MONGODB_HOME}/bin
 
 RUN set -ex \
     && echo http://nl.alpinelinux.org/alpine/edge/testing >> /etc/apk/repositories \
@@ -37,6 +41,10 @@ RUN set -ex \
     && tar -C /opt -xf /home/temp/ext/SERVER_JRE \
     && ln -s $(ls -d1 /opt/* | grep -E 'jdk[0-9]{1,2}.') ${JAVA_HOME} \
     && rm -rf /opt/jdk/*src.zip \
+# MONGODB TOOLS
+    && MONGODIRTEMP=$(tar -ztf /home/temp/ext/MONGODB | head -1) && MONGODIRTEMP=${MONGODIRTEMP%/*} \
+    && tar -C /opt -zxf /home/temp/ext/MONGODB ${MONGODIRTEMP}/bin/mongoimport ${MONGODIRTEMP}/bin/mongoexport \
+    && ln -s /opt/${MONGODIRTEMP} ${MONGODB_HOME} \
 # DOCPAD
 #    && npm install -g docpad@${VER_DOCPAD} \
 # USER MGMT
@@ -54,6 +62,3 @@ RUN set -ex \
 USER ${A4E_USER}
 
 ENTRYPOINT ["/bin/bash"]
-
-ENV JAVA_HOME=/opt/jdk
-ENV PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:${JAVA_HOME}/bin

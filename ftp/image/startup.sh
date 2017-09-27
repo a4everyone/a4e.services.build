@@ -15,7 +15,8 @@ done < /run/secrets/ftp_users
 # host keys need to be in dropbear format. OpenSSH isn't compatible.
 dropbearconvert openssh dropbear /run/secrets/ftp_host_key_rsa /etc/dropbear/dropbear_rsa_host_key
 dropbearconvert openssh dropbear /run/secrets/ftp_host_key_ecdsa /etc/dropbear/dropbear_ecdsa_host_key
+mkdir -p ${A4E_USER_HOME}/.ssh/
 cp /run/secrets/ftp_authorized_pubkey ${A4E_USER_HOME}/.ssh/authorized_keys
-chown ${A4E_USER} ${A4E_USER_HOME}/.ssh/authorized_keys
+chown -R ${A4E_USER} ${A4E_USER_HOME}
 
 exec dropbear -p ${SFTP_PORT} $@
