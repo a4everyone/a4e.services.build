@@ -1,12 +1,19 @@
 #! /bin/sh
 
-while IFS=: read user group pass uid gid; do
+while IFS=: read user pass uid othergroups; do
   if [ -n "${user}" ] && [ -n "${pass}" ]; then
     adduser -D ${user} -u ${uid}
     echo "${user}:${pass}" | chpasswd
 
-    addgroup -g ${gid} ${group}
-    adduser ${user} ${group}
+    if [ -n "${othergroups}" ]; then
+        IFS=';' tokens=( $othergroups )
+        for grouptoadd in "${tokens[@]}"; do
+            addgroup "${user}" "${grouptoadd}"
+        done
+    fi
+
+#    addgroup -g ${gid} ${group}
+#    adduser ${user} ${group}
   fi
 done < /run/secrets/ftp_users
 
