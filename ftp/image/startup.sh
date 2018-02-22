@@ -6,8 +6,8 @@ while IFS=: read user pass uid othergroups; do
     echo "${user}:${pass}" | chpasswd
 
     if [ -n "${othergroups}" ]; then
-        IFS=';' tokens=( $othergroups )
-        for grouptoadd in "${tokens[@]}"; do
+        othergroups=$( echo $othergroups | tr ";" "\n" )
+        for grouptoadd in ${othergroups}; do
             addgroup "${user}" "${grouptoadd}"
         done
     fi
