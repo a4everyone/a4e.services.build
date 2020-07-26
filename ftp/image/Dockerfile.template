@@ -14,9 +14,9 @@ ENV BUILDINFO_${key}="${value}" <% } %>
 
 RUN chmod o-r / \
  && for file in /*; do if [ -d \${file} ]; then chmod o-r \${file}; fi; done \
- && chmod 771 /home/ \
+ && chmod 751 /home/ \
  && adduser -D \${A4E_USER} -u \${A4E_USER_UID} -h \${A4E_USER_HOME} \
- && chmod 770 \${A4E_USER_HOME} \
+ && chmod 750 \${A4E_USER_HOME} \
  && chown root:\${A4E_USER_UID} /home
 
 COPY startup.sh /startup.sh

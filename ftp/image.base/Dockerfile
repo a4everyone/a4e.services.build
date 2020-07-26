@@ -1,4 +1,4 @@
-FROM alpine:3.6
+FROM alpine:3.12
 
 RUN true \
     && apk add --no-cache openssh-sftp-server dropbear dropbear-convert rsync \

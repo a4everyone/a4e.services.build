@@ -40,4 +40,5 @@ chown -R ${A4E_USER} ${A4E_USER_HOME}/.ssh
 crontab /jobs.crontab
 crond
 
+umask 007
 exec dropbear -p ${SFTP_PORT} $@
