@@ -1,4 +1,4 @@
-FROM a4everyone/ftp:base-0.0.6-SNAPSHOT
+FROM a4everyone/ftp:base-0.0.6
 
 ARG A4E_USER=a4e
 ARG A4E_USER_HOME=/home/\${A4E_USER}
