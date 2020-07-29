@@ -192,10 +192,10 @@ function mend_file_props {
 
 # The automatically created user_home doesn't obey the umask, so we remove any "other" privileges
 if [ "$user_type" == "cli" ]; then
-    mend_file_props ${user_home} ${uid} ${uid} 2750
+    mend_file_props ${user_home} ${uid} ${uid} 2751
     mend_file_props ${user_home}/${gr_private} ${a4e_user_uid} ${private_guid} 2770
 else
-    mend_file_props ${user_home} ${uid} ${uid} 2750
+    mend_file_props ${user_home} ${uid} ${uid} 2751
 fi
 mend_file_props ${user_home}/.ssh ${uid} ${uid} 2750
 mend_file_props ${user_home}/.ssh/authorized_keys ${uid} ${uid} 400 # authorized_keys needs to be only readable to the user themself, and not writable. Otherwise publickey login doesn't work.

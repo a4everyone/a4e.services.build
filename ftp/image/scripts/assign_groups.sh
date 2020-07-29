@@ -19,6 +19,7 @@ while IFS=: read user uid pass acc_type; do
         fi
     fi
 done < /run/secrets/ftp_users
+empl_users="$empl_users\n" # Adding a trailing \n, so that later inclusion checks all conform to the regex \nNAME\n
 
 # Delete all supplementary groups for every user - we'll add back the needed ones later in this script
 for empl_usr in $( echo -e "$empl_users" ); do
@@ -46,8 +47,13 @@ while IFS=":" read user groups; do
     if [ -n "${groups}" ]; then
         groups=$( echo $groups | tr "," "\n" )
         for grouptoadd in ${groups}; do
+            # if [ -z "${empl_users##*\\n${grouptoadd}\\n*}" ]; then # This twisted condition is just a check if ${empl_users} contains ${grouptoadd}
+            #     # This is an a4e employee group assigned
+            # fi
             echo "assigning group ${grouptoadd} to ${user}"
             addgroup "${user}" "${grouptoadd}"
+            addgroup "${user}" "${grouptoadd}_private"
+            addgroup "${user}" "${grouptoadd}_shared"
         done
     fi
 
