@@ -6,11 +6,11 @@
 # Following are some basic conventions of the user, group and directory management:
 #
 # COMMON GROUNDS:
-# You can't get access to a colleague's private directory. You can't be a member of your colleague's main group
+# You can't get access to a colleague's home directory. You can't be a member of your colleague's main group
 # If you need access to a colleague's shared directory, you need to be a member into their ${USER}_shared group
-# If you need to access a client's home directory, you need to be a member of their main group
-# If you need to access a client's shared directory, you need to be a member of their {USER}_shared group
-# If you need to access a client's private directory, you need to be a member of their {USER}_private group
+# If you need a readonly access to a client's home directory, you need to be a member of their main group
+# If you need access to a client's shared directory, you need to be a member of their {USER}_shared group
+# If you need access to a client's private directory, you need to be a member of their {USER}_private group
 #
 ##############################################
 # CLIENT USERNAMES AND DIRECTORY CONVENTIONS #
@@ -46,9 +46,14 @@ set -e
 # After this umask, new files and folders don't give privileges to "other".
 umask 007
 
-user=cli_rwe
-uid=1112
-user_type=cli # other possible option is a4e
+# user=cli_rwe
+# uid=1112
+# user_type=cli # everything else is considered a4e employee account
+user=$1
+uid=$2
+pass="$3"
+user_type=$4
+
 user_home=/home/ftp_users/${user}
 
 
@@ -69,6 +74,7 @@ fi
 # Reserved GUID 1/5 is for ${user}_shared group, for both client and employee accounts.
 # Reserved GUID 2/5 is for ${user}_private group, for client accounts. It is not used for employee accounts
 shared_guid=$(( 43000 + ($uid - $a4e_user_uid) * 5 ))
+
 if [ "$user_type" == "cli" ]; then
     private_guid=$(( $shared_guid + 1 ))
 fi
@@ -88,10 +94,7 @@ if [ -n "$curr_uid" ] && [ "$curr_uid" -ne "$uid" ]; then
     CRITICAL_ERRORS="${CRITICAL_ERRORS}\n\t* The current UID for user ${user} is ${curr_uid}, but the configuration says it should be ${uid}."
 fi
 
-if [ -n "if [ -n "$curr_guid" ] && [ "$curr_guid" -ne "$uid" ]; then
-    CRITICAL_ERRORS="${CRITICAL_ERRORS}\n\t* The current GUID for group ${user} is ${curr_guid}, but the configuration says it should be ${uid}."
-fi
-" ] && [ "$curr_guid" -ne "$uid" ]; then
+if [ -n "$curr_guid" ] && [ "$curr_guid" -ne "$uid" ]; then
     CRITICAL_ERRORS="${CRITICAL_ERRORS}\n\t* The current GUID for group ${user} is ${curr_guid}, but the configuration says it should be ${uid}."
 fi
 
@@ -113,8 +116,10 @@ if [ "$user_type" == "cli" ] && [ -n "$gr_private_curr_guid" ] && [ "$gr_private
 fi
 
 if [ -n "$CRITICAL_ERRORS" ]; then
-    echo "The following CRITICAL ERRORs were found. The system won't start until you resolve them:"
+    echo "The following CRITICAL ERRORs were found:"
     echo -e "$CRITICAL_ERRORS"
+    echo "Execution was prematurely terminated - it is not recommended to fun the SFTP server in such an indetermined state, as this may lead to data leaks between clients."
+    false
 fi
 
 # For the sake of data leak prevention, this SFTP server won't start until you resolve the situation!!!
@@ -124,27 +129,15 @@ if [ -z "$curr_uid" ]; then # empty curr_uid means user doesn't exist
     # The default permissions for the home directory are drwxr-sr-x: 
     # "s" means "setGID" flag + executable ("S" means setGID - executable)
     adduser -D ${user} -u ${uid} -h ${user_home}
-    # The automatically created user_home doesn't obey the umask, so we remove any "other" privileges
-    if [ "$user_type" == "cli" ]; then
-        chmod 750 ${user_home}
-        chmog g+s ${user_home}
-    else
-        chmod 710 ${user_home}
-        chmog g+s ${user_home}
-    fi
+    echo "${user}:${pass}" | chpasswd
 fi
 # Create the .ssh folder if it doesn't exist
 if [ ! -d ${user_home}/.ssh ]; then
     mkdir -p ${user_home}/.ssh
-    chown ${user}:${user} ${user_home}/.ssh
-    chmod g-w ${user_home}/.ssh
 fi
 # Create the .ssh/authorized_keys if it doesn't exist
 if [ ! -f ${user_home}/.ssh/authorized_keys ]; then
     touch ${user_home}/.ssh/authorized_keys
-    chown ${user}:${user} ${user_home}/.ssh/authorized_keys
-    # authorized_keys needs to be only readable to the user themself, and not writable. Otherwise it doesn't work.
-    chmod 400 ${user_home}/.ssh/authorized_keys
 fi
 
 # Create the {user}_shared group if it doesn't exist
@@ -159,14 +152,51 @@ fi
 # Create the ${user_home}/${gr_shared} dir if it doesn't exist
 if [ ! -d ${user_home}/${gr_shared} ]; then
     mkdir -p ${user_home}/${gr_shared}
-    chown ${user}:${gr_shared} ${user_home}/${gr_shared}
-    chmod 770 ${user_home}/${gr_shared}
-    chmod g+s ${user_home}/${gr_shared}
 fi
 
 if [ "$user_type" == "cli" ] && [ ! -d ${user_home}/${gr_private} ]; then
     mkdir -p ${user_home}/${gr_private}
-    chown ${A4E_USER}:${gr_private} ${user_home}/${gr_private}
-    chmod 770 ${user_home}/${gr_private}
-    chmod g+s ${user_home}/${gr_private}
 fi
+
+# This is an idempotent function, it won't take any action unless necessary
+function mend_file_props {
+    path="$1"
+    expected_UID=$2
+    expected_GID=$3
+    expected_PRM=$4
+
+    if [ ! -e $path ]; then
+        echo "ERROR while setting the permissions and ownership for ${path}: The file or directory doesn't exist"
+        false
+    fi
+
+    curr_UID=$(stat -c "%u" "$path")
+    curr_GID=$(stat -c "%g" "$path")
+    curr_PRM=$(stat -c "%a" "$path")
+
+    if [ "$expected_PRM" -ne "$curr_PRM" ]; then
+        echo "Changing permissions for ${path} from $curr_PRM to $expected_PRM"
+        chmod $expected_PRM "$path"
+    fi
+
+    if [ "$expected_UID" -ne "$curr_UID" ]; then
+        echo "Changing user ownership for ${path} from $curr_UID to $expected_UID"
+        chown $expected_UID "$path"
+    fi
+
+    if [ "$expected_GID" -ne "$curr_GID" ]; then
+        echo "Changing group ownership for ${path} from $curr_GID to $expected_GID"
+        chgrp $expected_GID "$path"
+    fi
+}
+
+# The automatically created user_home doesn't obey the umask, so we remove any "other" privileges
+if [ "$user_type" == "cli" ]; then
+    mend_file_props ${user_home} ${uid} ${uid} 2750
+    mend_file_props ${user_home}/${gr_private} ${a4e_user_uid} ${private_guid} 2770
+else
+    mend_file_props ${user_home} ${uid} ${uid} 2750
+fi
+mend_file_props ${user_home}/.ssh ${uid} ${uid} 2750
+mend_file_props ${user_home}/.ssh/authorized_keys ${uid} ${uid} 400 # authorized_keys needs to be only readable to the user themself, and not writable. Otherwise publickey login doesn't work.
+mend_file_props ${user_home}/${gr_shared} ${uid} ${shared_guid} 2770
