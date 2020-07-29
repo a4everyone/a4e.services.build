@@ -4,7 +4,7 @@ apply from: "${System.env.A4E_GRADLE_COMMON}/a4e-service-config.gradle"
 project(':image.base') {
     ext.baseImageApps = []
 
-    apply from: "${System.env.A4E_GRADLE_COMMON}/image-base-build.gradle"
+    apply from: "${System.env.A4E_GRADLE_COMMON}/image-base-build-gradle-6.5.1.gradle"
 
     tasks.buildBaseDockerImg {
         buildArgs = ["A4E_USER": "${rootProject.A4E_USER}",
@@ -12,6 +12,6 @@ project(':image.base') {
     }
 }
 
-apply from: "${System.env.A4E_GRADLE_COMMON}/image-build.gradle"
+apply from: "${System.env.A4E_GRADLE_COMMON}/image-build-gradle-6.5.1.gradle"
 
 tasks.build.dependsOn ':image.base:build'

@@ -1,9 +1,25 @@
-FROM a4everyone/ftp:base-${project.version}${project.serviceBranchTag}
+FROM a4everyone/ftp:base-0.0.6-SNAPSHOT
+
+ARG A4E_USER=a4e
+ARG A4E_USER_HOME=/home/\${A4E_USER}
+ARG A4E_USER_UID=1001
+
+ENV A4E_USER_HOME=\${A4E_USER_HOME}
+ENV A4E_USER=\${A4E_USER}
+ARG A4E_USER_UID=\${A4E_USER_UID}
 
 ENV SFTP_PORT=22
 <% project.buildinfo.each { key, value -> %>
 ENV BUILDINFO_${key}="${value}" <% } %>
 
-COPY startup.sh /startup.sh
+COPY scripts/* /scripts/
 
-ENTRYPOINT ["/startup.sh"]
+RUN chmod o-r / \
+ && for file in /*; do if [ -d \${file} ]; then chmod o-r \${file}; fi; done \
+ && chmod 751 /home/ \
+ && adduser -D \${A4E_USER} -u \${A4E_USER_UID} -h \${A4E_USER_HOME} \
+ && chmod 750 \${A4E_USER_HOME} \
+ && chown root:\${A4E_USER_UID} /home \
+ && cp -f /scripts/motd /etc/motd
+
+ENTRYPOINT ["/scripts/startup.sh"]

@@ -1,5 +1,5 @@
 ext.verPrefix = "build-web"
-apply from: "${System.env.A4E_GRADLE_COMMON}/a4e-service-config.gradle"
+apply from: "${System.env.A4E_GRADLE_COMMON}/a4e-service-config.gradle-6.5.1"
 
 // project(':image.base') {
 //     ext.baseImageApps = [
@@ -19,6 +19,6 @@ apply from: "${System.env.A4E_GRADLE_COMMON}/a4e-service-config.gradle"
 //     }
 // }
 
-apply from: "${System.env.A4E_GRADLE_COMMON}/image-build.gradle"
+apply from: "${System.env.A4E_GRADLE_COMMON}/image-build.gradle-6.5.1"
 
 // tasks.build.dependsOn ':image.base:build'
