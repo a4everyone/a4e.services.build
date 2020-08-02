@@ -2,20 +2,18 @@
 
 set -e
 
+addgroup $A4E_USER $A4E_INTERNAL_GROUP
 # First we collect the two arrays - all employee users and their _shared groups
 # In this loop we also add A4E_USER as a member of all groups - main user groups, shared and private ones as well
 # Note: this is classic shell, so no actual arrays, no <<< redirecting from variable, no nothing
-empl_shared_groups=""
 empl_users=""
 while IFS=: read user uid pass acc_type; do
     if [ -n "${user}" ]; then
         addgroup $A4E_USER $user
-        addgroup $A4E_USER ${user}_shared
         if [ "$acc_type" == "cli" ]; then
-            addgroup $A4E_USER ${user}_private
+            addgroup $A4E_USER ${user}_internal
         else
             empl_users="$empl_users\n$user"
-            empl_shared_groups="$empl_shared_groups\n${user}_shared"
         fi
     fi
 done < /run/secrets/ftp_users
@@ -34,15 +32,13 @@ for empl_usr in $( echo -e "$empl_users" ); do
     done
 done
 
-# Next we add each employee to all the employee_shared groups
+# Next we add each employee to all the a4e_internal groups
 for empl_usr in $(echo -e "$empl_users"); do
-    for shr_grp in $(echo -e "$empl_shared_groups"); do
-        echo "assigning group ${shr_grp} to ${empl_usr}"
-        addgroup "${empl_usr}" "${shr_grp}"
-    done
+    echo "assigning group ${A4E_INTERNAL_GROUP} to ${empl_usr}"
+    addgroup "${empl_usr}" "${A4E_INTERNAL_GROUP}"
 done
 
-# Adding the client_shared or client_private groups where necessary
+# Adding the client client_internal groups where necessary
 while IFS=":" read user groups; do
     if [ -n "${groups}" ]; then
         groups=$( echo $groups | tr "," "\n" )
@@ -52,8 +48,7 @@ while IFS=":" read user groups; do
             # fi
             echo "assigning group ${grouptoadd} to ${user}"
             addgroup "${user}" "${grouptoadd}"
-            addgroup "${user}" "${grouptoadd}_private"
-            addgroup "${user}" "${grouptoadd}_shared"
+            addgroup "${user}" "${grouptoadd}_internal"
         done
     fi
 

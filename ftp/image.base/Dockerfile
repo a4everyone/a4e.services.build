@@ -1,7 +1,7 @@
 FROM alpine:3.12
 
 RUN true \
-    && apk add --no-cache openssh-sftp-server dropbear dropbear-convert rsync \
+    && apk add --no-cache openssh-sftp-server dropbear dropbear-convert rsync acl \
     && rm -rf /var/cache/apk/* \
     && mkdir /etc/dropbear \
     && touch /var/log/lastlog

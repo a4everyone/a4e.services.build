@@ -1,4 +1,4 @@
-FROM a4everyone/ftp:base-0.0.6
+FROM a4everyone/ftp:base-0.0.7
 
 ARG A4E_USER=a4e
 ARG A4E_USER_HOME=/home/\${A4E_USER}
@@ -6,7 +6,7 @@ ARG A4E_USER_UID=1001
 
 ENV A4E_USER_HOME=\${A4E_USER_HOME}
 ENV A4E_USER=\${A4E_USER}
-ARG A4E_USER_UID=\${A4E_USER_UID}
+ENV A4E_USER_UID=\${A4E_USER_UID}
 
 ENV SFTP_PORT=22
 <% project.buildinfo.each { key, value -> %>
