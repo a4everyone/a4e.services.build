@@ -34,8 +34,8 @@ RUN ansible-galaxy collection install azure.azcollection:==1.3.1 \
     && echo 'source /usr/share/bash-completion/bash_completion' >> ${A4E_USER_HOME}/.bashrc \
     && echo 'source <(kubectl completion bash)' >> ${A4E_USER_HOME}/.bashrc \
     && echo 'alias k=kubectl' >> ${A4E_USER_HOME}/.bashrc \
-    && echo 'alias fromclip=xclip -selection clipboard -o' >> ${A4E_USER_HOME}/.bashrc \
-    && echo 'toclip=xclip -selection c' >> ${A4E_USER_HOME}/.bashrc \
+    && echo 'alias fromclip="xclip -selection clipboard -o"' >> ${A4E_USER_HOME}/.bashrc \
+    && echo 'alias toclip="xclip -selection c"' >> ${A4E_USER_HOME}/.bashrc \
     && echo 'complete -F __start_kubectl k' >> ${A4E_USER_HOME}/.bashrc
 
 RUN curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash \
