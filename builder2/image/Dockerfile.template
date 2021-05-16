@@ -1,0 +1,3 @@
+FROM a4everyone/builder2:base-${project.version}${project.serviceBranchTag}
+
+ENTRYPOINT ["/script/startup.sh"]

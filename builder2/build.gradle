@@ -1,0 +1,21 @@
+ext.verPrefix = "builder2"
+apply from: "${System.env.A4E_GRADLE_COMMON}/a4e-service-config.gradle"
+
+project(':image.base') {
+    ext.baseImageApps = [
+      'MONGODB': 'v_3.4.9'
+    ]
+
+    apply from: "${System.env.A4E_GRADLE_COMMON}/image-base-build-gradle-6.5.1.gradle"
+
+    tasks.buildBaseDockerImg {
+        buildArgs = ["A4E_USER": "${rootProject.A4E_USER}",
+                     "A4E_USER_HOME": "${rootProject.A4E_USER_HOME}",
+                     "DOCKER_GROUP1": "${System.env.DOCKER_GROUP1}",
+                     "DOCKER_GROUP2": "${System.env.DOCKER_GROUP2}"]
+    }
+}
+
+apply from: "${System.env.A4E_GRADLE_COMMON}/image-build-gradle-6.5.1.gradle"
+
+tasks.build.dependsOn ':image.base:build'
