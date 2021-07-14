@@ -6,8 +6,6 @@ ARG A4E_USER_HOME=/home/${A4E_USER}
 ARG DOCKER_GROUP1
 ARG DOCKER_GROUP2
 
-COPY SERVER_JRE GLIBC_ALPINE GLIBC_ALPINE_BIN GLIBC_ALPINE_I18N MONGODB /home/temp/ext/
-
 RUN addgroup --gid=1000 ${A4E_USER} \
     && adduser --uid=1000 --gid=1000 --disabled-password --gecos "" a4e \
     && addgroup --gid ${DOCKER_GROUP1} docker1 \
@@ -20,10 +18,10 @@ RUN apt-get update \
 ENV PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/a4e/.local/bin
 
 # Ansible 2.10 is only compatible with azure-cli 2.16, be careful when you move versions because there was some guesswork here to achieve compliance
-# Also using azure storage, which is an obsolete library, was necessary because otherwise Ansible would prodice errors.
+# Also using azure-storage, which is an obsolete library, was necessary because otherwise Ansible would prodice errors.
 RUN curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py \
     && python3 get-pip.py \
-    && python3 -m pip install ansible==2.10 azure-cli==2.16 azure-storage==0.36 azure-mgmt-automation==0.1.1 \
+    && python3 -m pip install twine ansible==2.10 azure-cli==2.16 azure-storage==0.36 azure-mgmt-automation==0.1.1 \
     && curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.20.1/bin/linux/amd64/kubectl \
     && chmod +x ./kubectl \
     && mv ./kubectl /usr/local/bin/kubectl

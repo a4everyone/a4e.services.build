@@ -70,6 +70,7 @@ fi
 # The following assumptions and constraints take place here:
 # Constraint: max UID and GUID is 256000, this is a system limitation.
 # Constraint: UID/GUID range 1002 - 1100 are system reserved. GUID 1002 is the a4e_internal group, UID/GUID 1100 is for clearlypro
+# COnstraint: UID/GUID range 1010 - 1060 are clearance level groups that give access to specific keys. For more details check permission_groups.sh in this directory.
 # Constraint: employee accounts have UID/GUID range 1101 - 5100
 # Constraint: employee accounts have UID/GUID range 5100 - 42999 (god bless my optimism)
 # Assumption: At its peak, A4E Corp. will have 37,899 clients and 3999 employees. We leave 5 reserved gids for each main gid.

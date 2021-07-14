@@ -26,6 +26,7 @@ while IFS=: read user uid pass acc_type; do
     /scripts/recreate_user.sh $user $uid $pass $acc_type
   fi
 done < /run/secrets/ftp_users
+/scripts/permission_groups.sh
 /scripts/assign_groups.sh
 
 # it is mandatory to have the a4e user in the secrets
