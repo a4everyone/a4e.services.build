@@ -1,4 +1,4 @@
-#! /bin/sh
+#! /bin/bash
 # 1010 - 1060
 set -e
 
@@ -27,7 +27,7 @@ for perm in $PERM_GROUPS; do
     # Create the group if it doesn't exist
     if [ -z "$curr_guid" ]; then
         echo "Creating group ${THISGR}:${THISGID}"
-        addgroup -g ${THISGID} ${THISGR}
+        addgroup -gid ${THISGID} ${THISGR}
     else
         echo "Group ${THISGR}:${THISGID} already exists"
     fi

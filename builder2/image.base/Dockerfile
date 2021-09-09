@@ -13,7 +13,7 @@ RUN addgroup --gid=1000 ${A4E_USER} \
     && adduser ${A4E_USER} docker1 \
     && adduser ${A4E_USER} docker2
 RUN apt-get update \
-    && apt-get install -y curl software-properties-common python3-distutils bash-completion openssh-client xclip jq
+    && apt-get install -y curl software-properties-common python3-distutils bash-completion openssh-client xclip jq sshfs python3.8-venv
 
 ENV PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/a4e/.local/bin
 
@@ -40,6 +40,9 @@ RUN curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 |
     && echo 'source <(helm completion bash)' >> ${A4E_USER_HOME}/.bashrc
 
 RUN cd /usr/bin && curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash
+
+RUN curl https://github.com/mikefarah/yq/releases/download/v4.11.0/yq_linux_amd64 --output /usr/bin/yq &&\
+    chmod +x /usr/bin/yq
 
 USER ${A4E_USER}
 
