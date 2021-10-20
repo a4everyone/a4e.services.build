@@ -135,8 +135,13 @@ if [ ! -d ${user_home}/.ssh ]; then
     mkdir -p ${user_home}/.ssh
 fi
 # Create the .ssh/authorized_keys if it doesn't exist
-if [ ! -f ${user_home}/.ssh/authorized_keys ]; then
-    touch ${user_home}/.ssh/authorized_keys
+# Note that because of legacy, we are checking for empty authorized_keys, not for non-existing one
+if [ ! -s ${user_home}/.ssh/authorized_keys ]; then
+    if [ -r ${AUTHORIZED_SECRETS_PATH}/${user} ]; then
+        cp ${AUTHORIZED_SECRETS_PATH}/${user} ${user_home}/.ssh/authorized_keys
+    else
+        touch ${user_home}/.ssh/authorized_keys
+    fi
 fi
 
 # Create the {user}_internal group if it doesn't exist
