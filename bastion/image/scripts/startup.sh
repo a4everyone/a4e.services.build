@@ -19,7 +19,10 @@ if [ -z "$a4e_internal_curr_guid" ]; then
 fi
 
 chown ${A4E_USER}:${A4E_INTERNAL_GROUP} /home/ftp_users
-chmod 751 /home/ftp_users
+
+# Originally it was 751, but since this is a mounted disk, kubernetes automatically gives it 771 when mounted with the "fsGroup" setting.
+# As a workaround we could put the ftp_users folder one level deeper, but I think we can just live with ftp_users having 771 permissions for now
+chmod 771 /home/ftp_users
 
 while IFS=: read user uid pass acc_type; do
   if [ -n "${user}" ] && [ -n "${pass}" ]; then
