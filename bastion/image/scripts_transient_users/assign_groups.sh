@@ -5,7 +5,6 @@ set -e
 adduser $A4E_USER $A4E_INTERNAL_GROUP
 # First we collect all employee users
 # In this loop we also add A4E_USER as a member of all groups - main user groups and internal client groups.
-# Note: this is classic shell, so no actual arrays, no <<< redirecting from variable, no nothing
 empl_users=""
 # Elevated users are the ones that are members of the a4e group, giving them access to the azure-volume-service-folders in /home/a4e
 # Elevated users are also employee accounts, obeying the normal employee acc permissions for client access
