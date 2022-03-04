@@ -142,6 +142,9 @@ if [ "$user_type" == "cli" ]; then
     # addgroup -g ${gr_internal_guid} ${gr_internal} # the busybox (alpine) addgroup
     addgroup --gid ${gr_internal_guid} ${gr_internal}
     mkdir -p ${user_home}/${dir_shared}
+
+    # Add A4E_USER in the newly created group(s)
+    adduser $A4E_USER ${user}_internal
 else
     mkdir -p ${user_home}/${dir_keyvault}
     adduser "${user}" "${A4E_INTERNAL_GROUP}"
@@ -149,6 +152,8 @@ else
         adduser "${user}" "${A4E_USER}"
     fi
 fi
+
+adduser $A4E_USER $user
 
 mkdir -p ${user_home}/${dir_internal}
 
